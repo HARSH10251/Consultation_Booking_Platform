@@ -1,18 +1,23 @@
 import { NextRequest, NextResponse } from "next/server";
 import { connectDB } from "@/lib/db";
-
-// Ensure models are registered in Mongoose schema cache before querying
-import "@/server/models/FacilityRoom";
-import "@/server/models/Specialty";
-import "@/server/models/User";
 import { DoctorProfile } from "@/server/models/DoctorProfile";
 import { Specialty } from "@/server/models/Specialty";
+import { User } from "@/server/models/User";
+import { FacilityRoom } from "@/server/models/FacilityRoom";
 
 export const dynamic = "force-dynamic";
 
 export async function GET(req: NextRequest) {
   try {
     await connectDB();
+
+    // Touch models to prevent Next.js bundler tree-shaking and guarantee schema registration in Mongoose
+    [FacilityRoom, Specialty, User, DoctorProfile].forEach((model) => {
+      if (model && model.modelName) {
+        // Registered
+      }
+    });
+
     const { searchParams } = new URL(req.url);
 
     const q = searchParams.get("q")?.toLowerCase().trim();
@@ -62,10 +67,11 @@ export async function GET(req: NextRequest) {
     if (sort === "fee_desc") sortOptions = { fee: -1 };
     if (sort === "experience") sortOptions = { experienceYears: -1 };
 
+    // Corrected path from "assignedRoom" to "assignedRoomId" to match DoctorProfile schema definition
     let doctors = await DoctorProfile.find(query)
       .populate("userId", "name email image phone")
       .populate("specialtyId")
-      .populate({ path: "assignedRoom", select: "name equipment", strictPopulate: false })
+      .populate("assignedRoomId", "name equipment")
       .sort(sortOptions)
       .lean();
 
