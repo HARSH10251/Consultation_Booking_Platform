@@ -5,11 +5,21 @@ import { User } from "@/server/models/User";
 import { DoctorProfile } from "@/server/models/DoctorProfile";
 import { AuditLog } from "@/server/models/AuditLog";
 import { registerPatientSchema, registerDoctorSchema } from "@/lib/validators/auth";
+import { checkRateLimit } from "@/lib/rateLimit";
 
 export const dynamic = "force-dynamic";
 
 export async function POST(req: NextRequest) {
   try {
+    const ip = req.headers.get("x-forwarded-for") || "client_reg";
+    const rateCheck = checkRateLimit(`reg_${ip}`, 10, 60000);
+    if (!rateCheck.allowed) {
+      return NextResponse.json(
+        { error: "Too many registration attempts. Please wait a minute." },
+        { status: 429 }
+      );
+    }
+
     const body = await req.json();
     const { role } = body;
 

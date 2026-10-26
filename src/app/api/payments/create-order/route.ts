@@ -4,12 +4,22 @@ import { requireAuth } from "@/lib/auth";
 import { Slot } from "@/server/models/Slot";
 import { DoctorProfile } from "@/server/models/DoctorProfile";
 import { createRazorpayOrder } from "@/lib/razorpay";
+import { checkRateLimit } from "@/lib/rateLimit";
 
 export const dynamic = "force-dynamic";
 
 export async function POST(req: NextRequest) {
   try {
     const user = await requireAuth();
+
+    const rateCheck = checkRateLimit(`order_${user.id}`, 20, 60000);
+    if (!rateCheck.allowed) {
+      return NextResponse.json(
+        { error: "Too many payment requests. Please wait a minute." },
+        { status: 429 }
+      );
+    }
+
     const body = await req.json();
     const { slotId } = body;
 

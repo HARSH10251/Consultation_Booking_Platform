@@ -2,12 +2,22 @@ import { NextRequest, NextResponse } from "next/server";
 import { requireAuth } from "@/lib/auth";
 import { verifyRazorpaySignature } from "@/lib/razorpay";
 import { BookingService } from "@/server/services/bookingService";
+import { checkRateLimit } from "@/lib/rateLimit";
 
 export const dynamic = "force-dynamic";
 
 export async function POST(req: NextRequest) {
   try {
     const user = await requireAuth();
+
+    const rateCheck = checkRateLimit(`verify_${user.id}`, 20, 60000);
+    if (!rateCheck.allowed) {
+      return NextResponse.json(
+        { error: "Too many verification requests. Please wait a moment." },
+        { status: 429 }
+      );
+    }
+
     const body = await req.json();
 
     const {
