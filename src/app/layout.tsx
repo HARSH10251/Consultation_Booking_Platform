@@ -1,10 +1,7 @@
 import type { Metadata } from "next";
-import { Inter } from "next/font/google";
 import "./globals.css";
 import { Providers } from "./providers";
 import { MobileNav } from "@/components/layout/MobileNav";
-
-const inter = Inter({ subsets: ["latin"], variable: "--font-sans" });
 
 export const metadata: Metadata = {
   title: "CareSlot - Smart Clinic Appointment & Waitlist Platform",
@@ -19,7 +16,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" suppressHydrationWarning>
-      <body className={`${inter.variable} font-sans antialiased pb-16 md:pb-0`}>
+      <body className="font-sans antialiased pb-16 md:pb-0">
         <Providers>
           {children}
           <MobileNav />
