@@ -1,9 +1,12 @@
 import { NextRequest, NextResponse } from "next/server";
 import { connectDB } from "@/lib/db";
+
+// Ensure models are registered in Mongoose schema cache before querying
+import "@/server/models/FacilityRoom";
+import "@/server/models/Specialty";
+import "@/server/models/User";
 import { DoctorProfile } from "@/server/models/DoctorProfile";
 import { Specialty } from "@/server/models/Specialty";
-import { User } from "@/server/models/User";
-import { FacilityRoom } from "@/server/models/FacilityRoom";
 
 export const dynamic = "force-dynamic";
 
@@ -62,7 +65,7 @@ export async function GET(req: NextRequest) {
     let doctors = await DoctorProfile.find(query)
       .populate("userId", "name email image phone")
       .populate("specialtyId")
-      .populate("assignedRoomId", "name equipment")
+      .populate({ path: "assignedRoom", select: "name equipment", strictPopulate: false })
       .sort(sortOptions)
       .lean();
 
