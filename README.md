@@ -261,3 +261,4 @@ In the Vercel project deployment screen, go to **Environment Variables** and add
 
 ## 📜 License
 MIT License • CareSlot Software Engineering Project.
+# Consultation_Booking_Platform
