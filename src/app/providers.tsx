@@ -69,6 +69,8 @@ export const useTheme = () => {
   return context;
 };
 
+import { EvaluatorToolbar } from "@/components/evaluator/EvaluatorToolbar";
+
 export function Providers({ children }: { children: React.ReactNode }) {
   const [queryClient] = useState(
     () =>
@@ -87,6 +89,7 @@ export function Providers({ children }: { children: React.ReactNode }) {
       <QueryClientProvider client={queryClient}>
         <ThemeProvider defaultTheme="light">
           {children}
+          <EvaluatorToolbar />
           <Toaster richColors position="top-right" closeButton />
         </ThemeProvider>
       </QueryClientProvider>
